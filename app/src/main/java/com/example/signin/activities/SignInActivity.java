@@ -28,7 +28,11 @@ public class SignInActivity extends AppCompatActivity {
     private ActivitySignInBinding binding;
     private PreferenceManager preferenceManager;
 
-
+    /**
+     * This is called on app creation and orientation changes to bind Views and call listeners
+     * Uses view binding to automatically associate with Views
+     * @param savedInstanceState param for orientation changes
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +42,13 @@ public class SignInActivity extends AppCompatActivity {
         setListeners();
     }
 
+    /**
+     * Sets listeners for when user clicks on the "Sign in" or "Create new account" button
+     * on the sign in page and executes functions acoordingly
+     * If the create new account button is pressed, the user is redirected to the sign up activity
+     * If the sign in button is pressed, email input is checked if they're an email pattern or was entered
+     * and if the password was entered
+     */
     private void setListeners() {
         binding.textCreateNewAccount.setOnClickListener(v ->
                 startActivity(new Intent(getApplicationContext(), SignUpActivity.class)));
@@ -48,10 +59,25 @@ public class SignInActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Helper function to display toasts
+     * @param message a string to display as a Toast
+     */
     private void showToast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Function to handle sign in logic, after user input has been validated by another function
+     * When user input of email is confirmed to be an email pattern and exists, and the password exists
+     * First hides the "sign in" button and replaces it with a progress bar
+     * Then the function retrieves an instance of the firestore database
+     * Then the e-mail and password from the user input is searched among the database with whereEqualto()
+     * which is a query function to the cloud database
+     * If a match is found then the user is directed to the main activity and details such as
+     * sign in status, userid, name, and image are saved into a Preference object
+     * If a match isn't found then a Toast pops up saying unable to login
+     */
     private void SignIn() {
         loading(true);
         FirebaseFirestore database = FirebaseFirestore.getInstance();
@@ -77,6 +103,11 @@ public class SignInActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Helper function used to hide or display the sign in button and progress bar
+     * @param isLoading signals if it's a state where the user clicks the button or the UI finished
+     *                  loading
+     */
     private void loading (Boolean isLoading){
         if (isLoading){
             binding.buttonSignIn.setVisibility(View.INVISIBLE);
@@ -87,7 +118,11 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * This function retrieves the text in the e-mail and password TextEdit Views and checks if
+     * the email is valid (using a pattern checker) or exists, and if the password exists
+     * @return signals if the user input is valid or not
+     */
     private boolean isValidateSignInDetails() {
         if (binding.inputEmail.getText().toString().trim().isEmpty()) {
             showToast("Please enter your e-mail");

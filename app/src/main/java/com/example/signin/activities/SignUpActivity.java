@@ -41,6 +41,11 @@ public class SignUpActivity extends AppCompatActivity {
     private PreferenceManager preferenceManager;
     private String encodeImage;
 
+    /**
+     * This is called on app creation and orientation changes to bind Views and call listeners
+     * Uses view binding to automatically associate with Views
+     * @param savedInstanceState param for orientation changes
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +55,14 @@ public class SignUpActivity extends AppCompatActivity {
         setListeners();
     }
 
+    /**
+     * Sets listeners for when user clicks on the "Sign up" button
+     * on the sign up page
+     * If the user clicks the sign in button, they are redirected to sign in activity
+     * If the user clicks on the "add image" button, they are directed to a System dialog used to
+     * output an image to the app
+     * If the user clicks on sign up, the sign up detail validation function is called
+     */
     private void setListeners() {
         binding.textSignIn.setOnClickListener(v -> onBackPressed());
 
@@ -66,10 +79,25 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Helper function to display toasts
+     * @param message a string to display as a Toast
+     */
     private void showToast(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * This is the main sign up function, called after the sign up detail has been checked to be valid
+     * When the user clicks the sign up button, it is hidden and the progress bar appears to show the system is working
+     * The function first retrieves an instance of the firestore database
+     * The sign up detail are all put into a hashmap, since all of the inputs are strings, including the image
+     * which is encoded into Base64
+     * Then the hashmap is added to the cloud database, and the user is redirected to the main activity
+     * Preliminary login activities such as saving the login metadata into a Preference object also occurs since
+     * signing up logs the user in
+     * If the sign up fails then a Toast will display the exception message
+     */
     private void SignUp(){
 
         loading(true);
@@ -99,6 +127,15 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Function used to encode an image into Base 64 string
+     * Encoding algorithm is not implemented here
+     * The image is also scaled appropiately and compressed
+     * as a JPEG before being encoded to ensure standardization of avatars
+     * The image is converted to raw bytes and then encoded using Base64.encodeToString()
+     * @param bitmap The avatar the user uploads
+     * @return A string representing the Base 64 encoding of the original bitmap
+     */
     private String encodeImage(Bitmap bitmap){
         int previewWidth = 150;
         int previewHeight = bitmap.getHeight()*previewWidth / bitmap.getWidth();
@@ -113,6 +150,12 @@ public class SignUpActivity extends AppCompatActivity {
         return Base64.encodeToString(bytes, Base64.DEFAULT);
     }
 
+    /**
+     * This function is used to call the system to access the Android device's gallery
+     * in order to choose an image.
+     * After an image is chosen, it is displayed on the imageProfile View on the sign up page
+     * and also removes the "add image" text in the middle of imageProfile
+     */
     private final ActivityResultLauncher<Intent> pickImage = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result ->{
@@ -132,6 +175,12 @@ public class SignUpActivity extends AppCompatActivity {
             }
     );
 
+    /**
+     * This function ensures every sign up detail is inputted by the user
+     * It also uses a pattern checker if the e-mail is a valid format.
+     * Password confirmation is also checked here
+     * @return Signals if the sign up details are valid
+     */
     private Boolean isValidateSignUpDetails(){
         if (encodeImage == null){
             showToast("Please choose an avatar");
@@ -161,7 +210,11 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-
+    /**
+     * Helper function used to hide or display the sign in button and progress bar
+     * @param isLoading signals if it's a state where the user clicks the button or the UI finished
+     *                  loading
+     */
     private void loading (Boolean isLoading){
         if (isLoading){
             binding.buttonSignUp.setVisibility(View.INVISIBLE);
