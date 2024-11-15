@@ -26,6 +26,8 @@ import com.example.signin.databinding.ActivitySignUpBinding;
 import com.example.signin.utilities.Constants;
 import com.example.signin.utilities.PreferenceManager;
 import com.google.firebase.FirebaseKt;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayInputStream;
@@ -90,41 +92,58 @@ public class SignUpActivity extends AppCompatActivity {
     /**
      * This is the main sign up function, called after the sign up detail has been checked to be valid
      * When the user clicks the sign up button, it is hidden and the progress bar appears to show the system is working
-     * The function first retrieves an instance of the firestore database
+     * The function first retrieves an instance of the project's Firebase Auth
+     * The user is created using createUserWithEmailAndPassword(). Various details such as password requirements
+     * and duplicate checks are made by createUserWithEmailAndPassword().
+     * If successful, preliminary login activities such as saving the login metadata into a Preference object also occurs since
+     * signing up logs the user in
      * The sign up detail are all put into a hashmap, since all of the inputs are strings, including the image
      * which is encoded into Base64
      * Then the hashmap is added to the cloud database, and the user is redirected to the main activity
-     * Preliminary login activities such as saving the login metadata into a Preference object also occurs since
-     * signing up logs the user in
+
      * If the sign up fails then a Toast will display the exception message
      */
-    private void SignUp(){
-
+    private void SignUp() {
         loading(true);
 
+        FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseFirestore database = FirebaseFirestore.getInstance();
-        HashMap<String, String> user = new HashMap<>();
-        user.put(Constants.KEY_NAME, binding.inputName.getText().toString());
-        user.put(Constants.KEY_EMAIL, binding.inputEmail.getText().toString());
-        user.put(Constants.KEY_PASSWORD, binding.inputPassword.getText().toString());
-        user.put(Constants.KEY_IMAGE, encodeImage);
 
-        database.collection(Constants.KEY_COLLECTION_USERS)
-                .add(user)
-                .addOnSuccessListener(documentReference -> {
-                    loading(false);
-                    preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
-                    preferenceManager.putString(Constants.KEY_NAME, binding.inputName.getText().toString());
-                    preferenceManager.putString(Constants.KEY_IMAGE, encodeImage);
+        auth.createUserWithEmailAndPassword(binding.inputEmail.getText().toString(), binding.inputPassword.getText().toString())
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser firebaseUser = auth.getCurrentUser();
+                        if (firebaseUser != null) {
+                            String userId = firebaseUser.getUid();
+                            HashMap<String, String> user = new HashMap<>();
+                            user.put(Constants.KEY_NAME, binding.inputName.getText().toString());
+                            user.put(Constants.KEY_EMAIL, binding.inputEmail.getText().toString());
+                            user.put(Constants.KEY_IMAGE, encodeImage);
+                            database.collection(Constants.KEY_COLLECTION_USERS)
+                                    .document(userId)
+                                    .set(user)
+                                    .addOnSuccessListener(documentReference -> {
+                                        loading(false);
+                                        preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
+                                        preferenceManager.putString(Constants.KEY_USERID, userId);
+                                        preferenceManager.putString(Constants.KEY_NAME, binding.inputName.getText().toString());
+                                        preferenceManager.putString(Constants.KEY_IMAGE, encodeImage);
 
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-
-                }).addOnFailureListener(exception ->{
-                    loading(false);
-                    showToast(exception.getMessage());
-        });
+                                        showToast("Registration successful!");
+                                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                        startActivity(intent);
+                                    })
+                                    .addOnFailureListener(exception -> {
+                                        loading(false);
+                                        showToast(exception.getMessage());
+                                    });
+                        }
+                    } else {
+                        loading(false);
+                        showToast(task.getException().getMessage());
+                    }
+                });
     }
 
     /**
