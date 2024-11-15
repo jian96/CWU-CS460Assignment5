@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1096586412528",
+    "project_id": "signin-465bb",
+    "storage_bucket": "signin-465bb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1096586412528:android:d7f68434b12be63c475d35",
+        "android_client_info": {
+          "package_name": "com.example.signin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBw7oVTo9St4kwZ9fTSRod3-Wi9yIwoVWU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
