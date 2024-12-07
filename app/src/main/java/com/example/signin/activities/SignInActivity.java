@@ -6,24 +6,15 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import com.example.signin.MainActivity;
-import com.example.signin.R;
 import com.example.signin.databinding.ActivitySignInBinding;
 import com.example.signin.utilities.Constants;
 import com.example.signin.utilities.PreferenceManager;
-import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
 
 public class SignInActivity extends AppCompatActivity {
 

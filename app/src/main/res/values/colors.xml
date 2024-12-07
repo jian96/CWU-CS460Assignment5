@@ -5,9 +5,9 @@
 
     <color name="primary">#FFD83D68</color>
     <color name="primary_text">#FFD83D68</color>
-    <color name="secondary_text">#090D22</color>
+    <color name="secondary_text">#64656A</color>
     <color name="input_background">#FFFFFFFF</color>
-    <color name="icon_background">#FFFFFFFF</color>
+    <color name="icon_background">#31333C</color>
     <color name="error">#FFFFFFFF</color>
     <color name="received_message_background">#FFFFFFFF</color>
     <color name="green">#FFFFFFFF</color>
